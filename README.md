@@ -3,7 +3,7 @@
 1. Code is not 100% optimized. 
 2. Feel free to suggest improvements.
 
-See: (Advent of code 2024)[https://adventofcode.com/2024]
+See: [Advent of code 2024](https://adventofcode.com/2024)
 
 ## Additional Rules I follow
 
