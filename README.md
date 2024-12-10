@@ -7,5 +7,5 @@ See: [Advent of code 2024](https://adventofcode.com/2024)
 
 ## Additional Rules I follow
 
-1. No dependencies, standard library only. Nightly compiler ok.
+1. The only allowed dependency is regex. Nightly compiler ok. 
 2. All errors must be handled or if a Result/Option is ignored, it must be explained with comment. This includes no unwrap.
