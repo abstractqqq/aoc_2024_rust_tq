@@ -11,7 +11,7 @@ use day1::{d1_part1_solution, d1_part2_solution};
 use day2::{d2_part1_solution, d2_part2_solution};
 use day3::{d3_part1_solution, d3_part2_solution};
 use day4::{d4_part1_solution, d4_part2_solution};
-use day5::{d5_part1_solution};
+use day5::{d5_part1_solution, d5_part2_solution};
 use error::Error;
 
 fn main() -> Result<(), Error> {
@@ -37,10 +37,8 @@ fn main() -> Result<(), Error> {
 
     let d5_part1 = d5_part1_solution("inputs/d5_input.txt")?;
     println!("D5 part 1 solution: {}", d5_part1);
-    // let d5_part2 = d4_part2_solution("inputs/d5_input.txt")?;
-    // println!("D5 part 2 solution: {}", d5_part2);
-    // let d3_part2 = d3_part2_solution("inputs/d3_input.txt")?;
-    // println!("D3 part 2 solution: {}", d3_part2);
+    let d5_part2 = d5_part2_solution("inputs/d5_input.txt")?;
+    println!("D5 part 2 solution: {}", d5_part2);
 
     Ok(())
 }

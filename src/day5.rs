@@ -34,6 +34,23 @@ fn parse_update_lists(update_str: &str) -> Vec<Vec<usize>> {
     output_lists
 }
 
+fn check_page_validity(rules: &HashMap<usize, HashSet<usize>>, page_nums: &[usize]) -> bool {
+
+    for (i, num) in page_nums.iter().enumerate() {
+        // For every number to the right of num, they should not have an entry in the rules
+        // that contains num
+        // If they do, that means they should be to the left of num.
+        for v in &page_nums[i+1..] {
+            if let Some(numbers) = rules.get(v) {
+                if numbers.contains(num) {
+                    return false
+                }
+            }
+        }
+    }
+    true
+}
+
 
 pub fn d5_part1_solution(input_path: &str) -> Result<usize, Error> {
     let mut f = File::open(input_path).map_err(|e| Error::IOError(e))?;
@@ -51,29 +68,70 @@ pub fn d5_part1_solution(input_path: &str) -> Result<usize, Error> {
 
     let mut answer = 0usize;
 
-    for sequence in parse_update_lists(right) {
-        let mut valid = true;
-        for (i, num) in sequence.iter().enumerate() {
+    for page in parse_update_lists(right) {
+        let valid = check_page_validity(&rules, &page);
+        // The update sequence is valid. Find middle number
+        if valid {
+            let mid = page.len() / 2;
+            answer += page[mid];
+        }
+    }
+    Ok(answer)
+}
+
+/// Returns whether or not the page_num vec is fixed. If false, then it must be correct.
+/// If true, it is fixed by the algo.
+fn recursive_fix_page_nums(rules: &HashMap<usize, HashSet<usize>>, page_nums: &mut Vec<usize>) -> bool {
+
+    let mut need_fix = false;
+    while !check_page_validity(rules, &page_nums) {
+        need_fix = true;
+        // Swap once for every loop
+        let mut swap: Option<(usize, usize)> = None;
+        'outer: for (i, num) in page_nums.iter().enumerate() {
             // For every number to the right of num, they should not have an entry in the rules
             // that contains num
             // If they do, that means they should be to the left of num.
-            for v in &sequence[i+1..] {
+            for (k, v) in page_nums[i+1..].iter().enumerate() {
                 if let Some(numbers) = rules.get(v) {
                     if numbers.contains(num) {
-                        valid = false;
-                        break;
+                        swap.replace((i, i + 1 + k));
+                        break 'outer
                     }
                 }
             }
-            if !valid {
-                break
-            }
         }
+        if let Some((i, j)) = swap {
+            page_nums.swap(i, j);
+        }
+    }
+    need_fix
+}
+    
+
+pub fn d5_part2_solution(input_path: &str) -> Result<usize, Error> {
+    let mut f = File::open(input_path).map_err(|e| Error::IOError(e))?;
+    let mut buffer = String::new();
+    f.read_to_string(&mut buffer).map_err(|e| Error::IOError(e))?;
+
+    let divide = "\n\n";
+    let divide_index = buffer
+        .find(divide)
+        .ok_or_else(|| Error::Other("Input file is not correct.".to_string()))?;
+
+    let (left, right) = buffer.split_at(divide_index);
+
+    let rules = parse_rules(left);
+
+    let mut answer = 0usize;
+    for mut page in parse_update_lists(right) {
+        let fixed = recursive_fix_page_nums(&rules, &mut page);
         // The update sequence is valid. Find middle number
-        if valid {
-            let mid = sequence.len() / 2;
-            answer += sequence[mid];
+        if fixed {
+            let mid = page.len() / 2;
+            answer += page[mid];
         }
+
     }
     Ok(answer)
 }
