@@ -6,5 +6,5 @@ pub enum Error {
     IOError(std::io::Error),
     ParseIntError(std::num::ParseIntError),
     RegexError(regex::Error),
-
+    Other(String)
 }
