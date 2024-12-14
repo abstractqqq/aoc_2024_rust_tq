@@ -1,8 +1,9 @@
 use crate::error::Error;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader};
 use std::collections::HashSet;
 
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 enum Direction {
     UP,
     LEFT,
@@ -30,22 +31,32 @@ pub struct Guard {
     x: usize,
     y: usize,
     direction: Direction,
-    trail: HashSet<(usize, usize)>,
-    oob: bool
+    trail: HashSet<(usize, usize, Direction)>,
+    oob: bool,
+    in_loop: bool,
 }
 
 impl Guard {
 
     fn new(x: usize, y:usize) -> Self {
         let mut hs = HashSet::new();
-        hs.insert((x, y));
+        hs.insert((x, y, Direction::new()));
         Guard {
             x: x,
             y: y,
             direction: Direction::new(),
             trail: hs,
-            oob: false
+            oob: false,
+            in_loop: false,
         }
+    }
+
+    fn get_direction(&self) -> Direction {
+        self.direction.clone()
+    }
+
+    fn turn(&mut self) {
+        self.direction = self.direction.turn();
     }
 
     fn check_and_move(&mut self, map: &[[bool; 130];130]) {
@@ -94,16 +105,23 @@ impl Guard {
         }
 
         if map[x][y] { // is obstacle
-            // reachable. Update coordinates and trail
+            // reachable.
+
+            // Stuck in a loop is equivalent to being in the same position
+            // with the same direction
+            if self.trail.contains(&(x, y, self.get_direction())) {
+                self.in_loop = true;
+            }
+
+            // Update coordinates and trail
             self.x = x;
             self.y = y;
-            self.trail.insert((x, y));
+            self.trail.insert((x, y, self.get_direction()));
         } else {
-            self.direction = self.direction.turn();
+            self.turn();
         }
     }
 }
-
 
 /// Returns the (map, starting position of guard) 
 fn load_map(input_path: &str) -> Result<([[bool;130];130], (usize, usize)), Error> {
@@ -127,8 +145,6 @@ fn load_map(input_path: &str) -> Result<([[bool;130];130], (usize, usize)), Erro
         }
 
     }
-    //println!("{:?}", walkable);
-    // println!("{:?}", (x,y));
     Ok((walkable, (x, y)))
 }
 
@@ -141,13 +157,49 @@ pub fn d6_part1_solution(input_path: &str) -> Result<usize, Error> {
     let distinct_places = loop {
         guard.check_and_move(&map);
         if guard.oob {
-            break guard.trail.len()
+            let only_positions_hashset:HashSet<(usize, usize)> = 
+                HashSet::from_iter(
+                    guard.trail.iter().map(|(x, y, _)| (*x, *y))
+                );
+
+            break only_positions_hashset.len()
         }
     };
 
     Ok(distinct_places)
 }
 
+fn check_loop_or_oob(map: &[[bool;130];130], mut guard: Guard) -> bool {
+    loop {
+        guard.check_and_move(&map);
+        if guard.oob {
+            break false
+        }
+        if guard.in_loop {
+            break true
+        }
+    }
+}
+
 pub fn d6_part2_solution(input_path: &str) -> Result<usize, Error> {
-    todo!()
+    // True if walkable
+    let (mut map, starting_pos) = load_map(input_path)?;
+    let (x, y) = starting_pos;
+
+    // Could there be more reduction we can do? E.g. no need to check lots of walkable positions?
+    let mut will_loop_count = 0usize; 
+    for i in 0..130 {
+        for j in 0..130 {
+            // Walkable and not initial position
+            if map[i][j] && (i != x || j != y) {
+                map[i][j] = false;
+                will_loop_count += check_loop_or_oob(&map, Guard::new(x, y)) as usize;
+                map[i][j] = true; // return it back
+            } else {
+                continue; // skip existing obstacles
+            }
+        }
+    }
+
+    Ok(will_loop_count)
 }

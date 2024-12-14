@@ -7,7 +7,7 @@ fn parse_rules(rule_str: &str) -> HashMap<usize, HashSet<usize>> {
 
     let mut map = HashMap::new();
     for rule in rule_str.split("\n") {
-        // Skip if | doesn't exist
+        // Skip if | doesn't exist, or first/second parsing returns error
         let mut numbers = rule.split('|');
         let first = numbers.next();
         let second = numbers.next();

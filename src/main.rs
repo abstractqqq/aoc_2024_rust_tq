@@ -44,8 +44,8 @@ fn main() -> Result<(), Error> {
 
     let d6_part1 = d6_part1_solution("inputs/d6_input.txt")?;
     println!("D6 part 1 solution: {}", d6_part1);
-    // let d6_part2 = d6_part2_solution("inputs/d6_input.txt")?;
-    // println!("D6 part 2 solution: {}", d6_part2);
+    let d6_part2 = d6_part2_solution("inputs/d6_input.txt")?;
+    println!("D6 part 2 solution: {}", d6_part2);
 
     Ok(())
 }
