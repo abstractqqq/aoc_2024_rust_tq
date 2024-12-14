@@ -2,7 +2,7 @@ use crate::error::Error;
 use std::fs::File;
 use std::io::Read;
 
-enum Direction<const N: usize> {
+pub enum Direction<const N: usize> {
     TopLeft,
     Top,
     TopRight,
