@@ -6,6 +6,7 @@ mod day3;
 mod day4;
 mod day5;
 mod day6;
+mod day7;
 mod error;
 
 use day1::{d1_part1_solution, d1_part2_solution};
@@ -14,6 +15,7 @@ use day3::{d3_part1_solution, d3_part2_solution};
 use day4::{d4_part1_solution, d4_part2_solution};
 use day5::{d5_part1_solution, d5_part2_solution};
 use day6::{d6_part1_solution, d6_part2_solution};
+use day7::{d7_part1_solution, d7_part2_solution};
 use error::Error;
 
 fn main() -> Result<(), Error> {
@@ -42,10 +44,15 @@ fn main() -> Result<(), Error> {
     // let d5_part2 = d5_part2_solution("inputs/d5_input.txt")?;
     // println!("D5 part 2 solution: {}", d5_part2);
 
-    let d6_part1 = d6_part1_solution("inputs/d6_input.txt")?;
-    println!("D6 part 1 solution: {}", d6_part1);
-    let d6_part2 = d6_part2_solution("inputs/d6_input.txt")?;
-    println!("D6 part 2 solution: {}", d6_part2);
+    // let d6_part1 = d6_part1_solution("inputs/d6_input.txt")?;
+    // println!("D6 part 1 solution: {}", d6_part1);
+    // let d6_part2 = d6_part2_solution("inputs/d6_input.txt")?;
+    // println!("D6 part 2 solution: {}", d6_part2);
+
+    let d7_part1 = d7_part1_solution("inputs/d7_input.txt")?;
+    println!("D7 part 1 solution: {}", d7_part1);
+    // let d7_part2 = d7_part2_solution("inputs/d7_input.txt")?;
+    // println!("D7 part 2 solution: {}", d7_part2);
 
     Ok(())
 }
