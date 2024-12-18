@@ -1,36 +1,63 @@
 use crate::error::Error;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read};
+use std::io::Read;
 
-/// Recursively solve the row
+/// Recursively solve the row for part 1, with 2 operations.
 fn solve_one_row(num:isize, numbers: &[isize]) -> bool {
 
     let mut solvable = false;
     if let Some(&a) = numbers.last() {
         let divisible = (num % a) == 0;
-        let second_to_last = numbers.len() - 1;
-        // Addition
-        if a <= num {
-            if second_to_last == 0 {
-                solvable = num == a;
-            } else {
-                // println!("+{}", a);
-                solvable = solve_one_row(num - a, &numbers[..second_to_last]);
-            }
-        }
-        // Divisible
-        if !solvable && divisible {
-            if second_to_last == 0 {
-                solvable = num == a; // num == a. We got a solution
-            } else {
-                // println!("*{}", a);
-                solvable = solve_one_row(num / a,&numbers[..second_to_last]);
+        let next_idx = numbers.len() - 1;
+        if next_idx == 0 {
+            solvable = num == a;
+        } else if a <= num {
+            // Addition
+            solvable = solve_one_row(num - a, &numbers[..next_idx]);
+
+            // Divisible
+            if !solvable && divisible {
+                solvable = solve_one_row(num / a,&numbers[..next_idx]);
             }
         }
     }
-
     solvable
+}
 
+/// Recursively solve the row for part 1, with 3 operations (+, * and ||)
+fn solve_one_row_with_concat(num:isize, numbers: &[isize]) -> bool {
+
+    let mut solvable = false;
+    if let Some(&a) = numbers.last() {
+        let divisible = (num % a) == 0;
+        let next_idx = numbers.len() - 1;
+        if next_idx == 0 {
+            solvable = num == a;
+        } else if a <= num {
+            // Addition
+            solvable = solve_one_row_with_concat(num - a, &numbers[..next_idx]);
+
+            // Divisible
+            if !solvable && divisible {
+                solvable = solve_one_row_with_concat(num / a,&numbers[..next_idx]);
+            }
+            // Concat
+            if !solvable {
+                let a_str = a.to_string();
+                let num_str = num.to_string();
+                if num_str.ends_with(a_str.as_str()) {
+                    // Always >= 0 because we can concat
+                    let split_index = num_str.len() - a_str.len();
+                    let (left, _) = num_str.split_at(split_index);
+                    if let Ok(n) = left.parse::<isize>() {
+                        solvable = solve_one_row_with_concat(n,&numbers[..next_idx]);
+                    }
+                }
+            }
+
+        }
+    }
+    solvable
 }
 
 pub fn parse_inputs(input_path: &str) -> Result<Vec<(isize, Vec<isize>)>, Error> {
@@ -77,6 +104,16 @@ pub fn d7_part1_solution(input_path: &str) -> Result<isize, Error> {
     Ok(sum)
 }
 
-pub fn d7_part2_solution(input_path: &str) -> Result<usize, Error> {
-    todo!()
+pub fn d7_part2_solution(input_path: &str) -> Result<isize, Error> {
+
+    let parsed_lines = parse_inputs(input_path)?;
+    let mut sum = 0isize;
+    for (num, numbers) in parsed_lines {
+        let solvable= solve_one_row_with_concat(num, &numbers);
+        // println!("{}: {:?}, Solvable: {}", num, numbers, solvable);
+        if solvable {
+            sum += num;
+        }
+    }
+    Ok(sum)
 }
